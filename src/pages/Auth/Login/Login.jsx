@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../../../Hooks/useAuth';
 import { Link } from 'react-router';
+import SocialLogin from '../SocialLogin/SocialLogin';
 
 const Login = () => {
 
@@ -48,6 +49,7 @@ const {signInUser} = useAuth()
         </fieldset>
         <p>New to ZapShift? <Link className='text-red-500 underline' to='/register'>Register now</Link></p>
       </form>
+      <SocialLogin></SocialLogin>
     </div>
     );
 };
