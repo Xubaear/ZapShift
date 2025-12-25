@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoaderData } from 'react-router';
+import Swal from 'sweetalert2';
 
 
 const SendParcel = () => {
@@ -10,10 +11,11 @@ const SendParcel = () => {
   const serviceCenters= useLoaderData()
   const regionsDuplicate = serviceCenters.map(c=> c.region)
   const regions= [...new Set(regionsDuplicate)]
-  console.log(regions)
+  
   const senderRegion= watch('senderRegion')
+  const reciverRegion= watch ('reciverRegion')
 
-  const districtsByRegion= region=>{
+  const districtsByRegion= (region)=>{
     const regionDistricts= serviceCenters.filter(c=>c.region=== region);
     const districts= regionDistricts.map(d=>d.district)
     return districts
@@ -21,6 +23,49 @@ const SendParcel = () => {
 
     const handleSendParcel=data=>{
         console.log(data)
+        const isDoc= data.parcelType==='document'
+        const isSameDistrict = data.senderDistrict===data.reciverDistrict;
+      const parcelWeight= parseFloat(data.parcelWeight)
+        let cost =0;
+        if(isDoc){
+          cost = isSameDistrict? 60: 80;
+        }
+        else{
+          if(parcelWeight<3){
+            cost = isSameDistrict? 110 : 150
+          }
+          else{
+            const minCharge= isSameDistrict? 110: 150;
+
+            const extraWeight= parcelWeight-3;
+
+            const extraCharge= isSameDistrict? extraWeight * 40 : extraWeight *40+40;
+
+            cost = minCharge+ extraCharge;
+
+          }
+        }
+        console.log(cost)
+
+        Swal.fire({
+  title: "Agree with the cost?",
+  text: `You will be charged ${cost} taka!`,
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Agree!"
+}).then((result) => {
+  if (result.isConfirmed) {
+
+    
+    // Swal.fire({
+    //   title: "Deleted!",
+    //   text: "Your file has been deleted.",
+    //   icon: "success"
+    // });
+  }
+});
     }
 
 
@@ -148,6 +193,39 @@ const SendParcel = () => {
           <label className="label text-blue-950">Reciver Email</label>
           <input type="email" {...register('reciverEmail')} className="input w-full" placeholder="Reciver Email" />
 
+
+           {/* Reciver region */}
+        <fieldset className="fieldset">
+  <legend className="fieldset-legend">Reciver Region</legend>
+  <select {...register('reciverRegion')} defaultValue="Pick a region" className="select">
+    <option disabled={true}>Pick a region</option>
+   
+   {
+    regions.map((r, i)=> <option key={i} value={r}>{r}</option>)
+   }
+
+   
+  </select>
+  
+</fieldset>
+
+
+         {/* reciver district */}
+        <fieldset className="fieldset">
+  <legend className="fieldset-legend">Reciver District</legend>
+  <select {...register('reciverDistrict')} defaultValue="Pick a district" className="select">
+    <option disabled={true}>Pick a district</option>
+   
+   {
+    districtsByRegion(reciverRegion).map((r, i)=> <option key={i} value={r}>{r}</option>)
+   }
+
+
+  </select>
+  
+</fieldset>
+
+
         {/* Reciver address */}
                  
           <label className="label mt-4 text-blue-950">Reciver Address</label>
@@ -164,10 +242,7 @@ const SendParcel = () => {
       
 
         
-        {/* Reciver district */}
-                
-          <label className="label mt-4 text-blue-950">Reciver District</label>
-          <input type="" {...register('reciverDistrict')} className="input w-full" placeholder="Reciver District" />
+       
              
 
       
