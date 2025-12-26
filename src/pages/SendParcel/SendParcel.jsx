@@ -2,11 +2,20 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoaderData } from 'react-router';
 import Swal from 'sweetalert2';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import useAuth from '../../Hooks/useAuth';
 
 
 const SendParcel = () => {
 
-  const {register, handleSubmit, watch, formState: {error}}= useForm()
+  const {register, 
+    handleSubmit, 
+    watch, 
+    // formState: {error}
+  }= useForm()
+
+  const {user}=useAuth()
+const axiosSecure= useAxiosSecure()
 
   const serviceCenters= useLoaderData()
   const regionsDuplicate = serviceCenters.map(c=> c.region)
@@ -58,6 +67,11 @@ const SendParcel = () => {
 }).then((result) => {
   if (result.isConfirmed) {
 
+    // save the parcel into the databse
+
+    axiosSecure.post('/parcels', data).then(res =>{
+      console.log(res.data)
+    })
     
     // Swal.fire({
     //   title: "Deleted!",
@@ -112,11 +126,15 @@ const SendParcel = () => {
 
                      {/* Sender Name */}
           <label className="label text-blue-950">Sender Name</label>
-          <input type="text" {...register('senderName')} className="input w-full" placeholder="Sender Name" />
+          <input type="text" {...register('senderName')} 
+          defaultValue={user?.displayName}
+          className="input w-full" placeholder="Sender Name" />
 
                      {/* Sender Email */}
           <label className="label text-blue-950">Sender Email</label>
-          <input type="email" {...register('senderEmail')} className="input w-full" placeholder="Sender Email" />
+          <input type="email" {...register('senderEmail')} 
+          defaultValue={user?.email}
+          className="input w-full" placeholder="Sender Email" />
          
 
          {/* Sender region */}
